@@ -1,29 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Team To-Do App</title>
+
+    <title>Task Manager</title>
+
     <link rel="stylesheet" href="style.css">
+
 </head>
+
 <body>
 
-<h2>Team To-Do List</h2>
+<div class="container">
 
-<input type="text" id="taskInput" placeholder="Enter task">
-<button onclick="addTask()">Add</button>
+    <div class="top-bar">
 
-<table id="taskTable">
-    <thead>
-        <tr>
-            <th>S.No</th>
-            <th>Tasks</th>
-            <th>Delete</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- Tasks will be added here -->
-    </tbody>
-</table>
+        <h2>Task Manager</h2>
+
+        <button class="logout-btn" onclick="logout()">
+            Logout
+        </button>
+
+    </div>
+
+    <div class="task-input">
+
+        <input
+            type="text"
+            id="taskInput"
+            placeholder="Enter a new task"
+        >
+
+        <button onclick="addTask()">
+            Add Task
+        </button>
+
+    </div>
+
+    <table id="taskTable">
+
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Task</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        </tbody>
+
+    </table>
+
+</div>
 
 <script src="script.js"></script>
+
 </body>
 </html>
