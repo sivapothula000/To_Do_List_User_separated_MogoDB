@@ -22,7 +22,7 @@ function addTask() {
         return;
     }
 
-    fetch("http://localhost:5000/add", {
+    fetch("https://to-do-list-p8hi.onrender.com/add", {
 
         method: "POST",
 
@@ -63,7 +63,7 @@ function addTask() {
 // Load Tasks
 function loadTasks() {
 
-    fetch("http://localhost:5000/tasks", {
+    fetch("https://to-do-list-p8hi.onrender.com/tasks", {
 
         headers: {
 
@@ -135,7 +135,7 @@ function loadTasks() {
 // Delete Task
 function deleteTask(id) {
 
-    fetch(`http://localhost:5000/delete/${id}`, {
+    fetch(`https://to-do-list-p8hi.onrender.com/delete/${id}`, {
 
         method: "DELETE",
 
