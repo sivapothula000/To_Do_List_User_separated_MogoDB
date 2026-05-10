@@ -1,19 +1,32 @@
-const auth = require("./middleware/auth");
-const Task = require("./models/Task");
-
-const connectDB=require("./db");
-const User=require("./models/user");
 require("dotenv").config();
-
-const PORT = process.env.PORT || 5000;
 
 const express = require("express");
 const cors = require("cors");
-const db = require("./db");
+
+const connectDB = require("./db");
+
+const auth = require("./middleware/auth");
+
+const Task = require("./models/task");
+
+const User = require("./models/user");
+
+const bcrypt = require("bcryptjs");
+
+const jwt = require("jsonwebtoken");
 
 const app = express();
+
+const PORT = process.env.PORT || 5000;
+
+// Connect MongoDB
+connectDB();
+
 app.use(cors());
+
 app.use(express.json());
+
+
 
 /* Add task */
 app.post("/add", auth, async (req, res) => {
@@ -84,11 +97,13 @@ app.delete("/delete/:id", auth, async (req, res) => {
 
 });
 
-app.listen(5000, () => {
-  console.log("Server running on port {PORT}");
+app.listen(PORT, () => {
+
+    console.log(`Server running on port ${PORT}`);
+
 });
 /* signup Route */
-const bcrypt = require("bcryptjs");
+
 
 app.post("/signup", async (req, res) => {
 
@@ -137,7 +152,7 @@ app.post("/signup", async (req, res) => {
 
 });
 /* login */
-const jwt = require("jsonwebtoken");
+
 
 app.post("/login", async (req, res) => {
 
