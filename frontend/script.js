@@ -4,9 +4,16 @@ const token = localStorage.getItem("token");
 if (!token) {
     window.location.href = "login.html";
 }
+// Get username
+const username =
+localStorage.getItem("username");
 
+// Display username
+document.getElementById("welcomeText")
+.innerText = `👋 Hello, ${username}`;
 // Load tasks when page opens
 window.onload = loadTasks;
+
 
 // Add Task
 function addTask() {
