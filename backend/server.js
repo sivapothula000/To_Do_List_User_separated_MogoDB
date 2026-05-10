@@ -1,4 +1,8 @@
 const auth = require("./middleware/auth");
+const Task = require("./models/Task");
+
+const connectDB=require("./db");
+const User=require("./models/user");
 require("dotenv").config();
 
 const PORT = process.env.PORT || 5000;
@@ -12,121 +16,180 @@ app.use(cors());
 app.use(express.json());
 
 /* Add task */
-app.post("/add", auth, (req, res) => {
+app.post("/add", auth, async (req, res) => {
 
-  const { task } = req.body;
+    try {
 
-  const userId = req.user.id;
+        const { task } = req.body;
 
-  db.query(
-    "INSERT INTO tasks (task, user_id) VALUES (?, ?)",
-    [task, userId],
-    () => {
-      res.send("Task added");
+        await Task.create({
+
+            task,
+
+            userId: req.user.id
+
+        });
+
+        res.json({
+            message: "Task added"
+        });
+
+    } catch(err){
+
+        console.log(err);
+
     }
-  );
 
 });
 
 /* Get tasks */
-app.get("/tasks", auth, (req, res) => {
+app.get("/tasks", auth, async (req, res) => {
 
-  const userId = req.user.id;
+    try {
 
-  db.query(
-    "SELECT * FROM tasks WHERE user_id=?",
-    [userId],
-    (err, result) => {
-      res.json(result);
+        const tasks = await Task.find({
+
+            userId: req.user.id
+
+        });
+
+        res.json(tasks);
+
+    } catch(err){
+
+        console.log(err);
+
     }
-  );
 
 });
 
 /* Delete task */
-app.delete("/delete/:id", auth, (req, res) => {
+app.delete("/delete/:id", auth, async (req, res) => {
 
-  const taskId = req.params.id;
+    try {
 
-  const userId = req.user.id;
+        await Task.findByIdAndDelete(
+            req.params.id
+        );
 
-  db.query(
-    "DELETE FROM tasks WHERE id=? AND user_id=?",
-    [taskId, userId],
-    () => {
-      res.send("Deleted");
+        res.json({
+            message: "Task deleted"
+        });
+
+    } catch(err){
+
+        console.log(err);
+
     }
-  );
 
 });
 
 app.listen(5000, () => {
   console.log("Server running on port {PORT}");
 });
+/* signup Route */
 const bcrypt = require("bcryptjs");
 
 app.post("/signup", async (req, res) => {
 
-    const { username, email, password } = req.body;
+    try {
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+        const { username, email, password } = req.body;
 
-    const sql =
-    "INSERT INTO users(username,email,password) VALUES(?,?,?)";
+        // check existing user
+        const existingUser =
+        await User.findOne({ email });
 
-    db.query(sql,
-    [username,email,hashedPassword],
-    (err,result)=>{
+        if(existingUser){
 
-        if(err){
             return res.json({
-                success:false,
-                message:"User already exists"
+                message: "User already exists"
             });
+
         }
+
+        // hash password
+        const hashedPassword =
+        await bcrypt.hash(password, 10);
+
+        // create user
+        await User.create({
+
+            username,
+            email,
+            password: hashedPassword
+
+        });
 
         res.json({
-            success:true,
-            message:"Signup successful"
+            message: "Signup successful"
         });
-    });
+
+    } catch(err){
+
+        console.log(err);
+
+        res.json({
+            message: "Signup failed"
+        });
+
+    }
+
 });
+/* login */
 const jwt = require("jsonwebtoken");
 
-app.post("/login", (req,res)=>{
+app.post("/login", async (req, res) => {
 
-    const { email,password } = req.body;
+    try {
 
-    const sql = "SELECT * FROM users WHERE email=?";
+        const { email, password } = req.body;
 
-    db.query(sql,[email], async(err,result)=>{
+        // find user
+        const user =
+        await User.findOne({ email });
 
-        if(result.length === 0){
+        if(!user){
+
             return res.json({
-                message:"User not found"
+                message: "User not found"
             });
+
         }
 
-        const user = result[0];
-
+        // compare password
         const validPassword =
-        await bcrypt.compare(password,user.password);
+        await bcrypt.compare(
+            password,
+            user.password
+        );
 
         if(!validPassword){
+
             return res.json({
-                message:"Invalid password"
+                message: "Invalid password"
             });
+
         }
 
+        // create token
         const token = jwt.sign(
-            { id:user.id },
+
+            { id: user._id },
+
             process.env.JWT_SECRET
+
         );
 
         res.json({
-            token
+            token,
+            username: user.username
         });
 
-    });
+    } catch(err){
+
+        console.log(err);
+
+    }
 
 });
